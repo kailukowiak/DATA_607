@@ -1,0 +1,13 @@
+class,cap-shape,cap-surface,cap-color,bruises,odor,gill-attachment,gill-spacing,gill-size,gill-color,stalk-shape,stalk-root,stalk-surface-above-ring,stalk-surface-below-ring,stalk-color-above-ring,stalk-color-below-ring,veil-type,veil-color,ring-number,ring-type,spore-print-color,population,habitat
+edible,bell,fibrous,brown,bruises,almond,attached,close,broad,black,enlarging,bulbous,fibrous,fibrous,brown,brown,partial,brown,none,cobwebby,black,abundant,grasses
+poisonous,conical,grooves,buff,no,anise,descending,crowded,narrow,brown,tapering,club,scaly,scaly,buff,buff,universal,orange,one,evanescent,brown,clustered,leaves
+,convex,scaly,cinnamon,,creosote,free,distant,,buff,,cup,silky,silky,cinnamon,cinnamon,,white,two,flaring,buff,numerous,meadows
+,flat,smooth,gray,,fishy,notched,,,chocolate,,equal,smooth,smooth,gray,gray,,yellow,,large,chocolate,scattered,paths
+,knobbed,,green,,foul,,,,gray,,rhizomorphs,,,orange,orange,,,,none,green,several,urban
+,sunken,,pink,,musty,,,,green,,rooted,,,pink,pink,,,,pendant,orange,solitary,waste
+,,,purple,,none,,,,orange,,missing,,,red,red,,,,sheathing,purple,,woods
+,,,red,,pungent,,,,pink,,,,,white,white,,,,zone,white,,
+,,,white,,spicy,,,,purple,,,,,yellow,yellow,,,,,yellow,,
+,,,yellow,,,,,,red,,,,,,,,,,,,,
+,,,,,,,,,white,,,,,,,,,,,,,
+,,,,,,,,,yellow,,,,,,,,,,,,,
