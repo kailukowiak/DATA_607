@@ -18,10 +18,11 @@ if(!require(RPostgreSQL)){
 ```
 
 Password:
+I created a pasword outside of the r markdown in order to keep it secret. If I was not publishing this script I include it in place of the "****"
 ```{r}
-pw <- {
-  "**********"
-}
+#pw <- {
+ # "**********"
+#}
 ```
 
 Loading postgres
