@@ -1,0 +1,63 @@
+---
+title: "Automated Data Collection Ch8"
+author: "Kai Lukowiak"
+date: '2017-09-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First we load the data into R from the text book. (P. 196 Automated Data Collection with R)
+```{r}
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+```
+Import libraries
+```{r}
+library(stringr)
+```
+
+Seperate the letters and ignore the rest.
+ 
+This takes the string `raw.data` and finds patterns. The `:alpha: ,.` show everything that should be included. The `{2,}` is the min and max on the string length. Being blank after the comma there is no max. If this number goes above 2 nothing happens with the output. If it goes below 2 then the information is split correctly but there are additional blanks that would have to be deleted (Presumably because of spaces `  `.)
+Because the period is out of the character is is read simply as a period, as opposed to an place holder.
+```{r}
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+```
+
+To extract the numbers, we use a similar command.
+```{r}
+phone <- unlist(str_extract_all(string = raw.data, pattern = "\\(?(\\d{3})?\\)?(-| )?\\d{3}(-| )?\\d{4}"))
+phone
+```
+Here we can see that choseing the chacacters to extract on is a bit harder. (Hopefully this will become clearer as the chapter goes on.)
+The `|` pipe represents an or in R.
+
+
+### 8.1
+```{r}
+example.obj <- "1. A small sentence. - 2. Another tiny sentence."
+str_extract(string = example.obj, pattern = "small")
+str_extract(string = example.obj, pattern = "banana")
+```
+This extracts a string matching the contents of the sentence or returns `Na`.
+```{r}
+str_extract(string = example.obj, pattern = "sma")
+```
+
+This isn't super useful as it only confirms (poorly) that there is a string.
+`str_extract_all` is a more useful expression because it counts all instances e.g.,
+```{r}
+unlist(str_extract_all(example.obj, "sentence"))
+str_extract_all(example.obj, "sentence") %>% unlist()
+str_extract_all(example.obj, "sentence")
+```
+We can see that unlisting this is a nice way to keep it cleaner (This is especially true since we are only using one string. If there were multiple it would make more sense to keep them listed). Also the pipe command works nicely here. ()
+
+
+```{r}
+
+```
+
