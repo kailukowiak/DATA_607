@@ -1,0 +1,86 @@
+---
+title: "Week 3 Assigment Data 607"
+author: "Kai Lukowiak"
+date: '2017-09-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assigment 3
+## Q 3
+Copy the introductory example. The vector `name` stores the extracted names.
+```{r}
+library(stringr)
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name # This was taken from the textbook.
+```
+
+### a)
+Use the tools of this chapter to rearrange the vector so that all elements conform to the
+standard first_name last_name.
+
+I am assuming that the instructions demand that honerifics are also removed. (I.e. J.K. Rowling stays the same but Ms. J.K. Rowling drops the Ms.)
+```{r}
+name
+
+```
+
+```{r}
+name2 <- str_replace_all(name, "(.+)(, .+)$", "\\2 \\1") # Change order
+name2 
+name3 <- str_replace_all(name2, ", ", "") # Remove commas
+name3
+name4 <- str_replace_all(name3, "[A-Z][a-z]([a-z]?)\\.", "") # Remove honerifics.
+name4
+```
+
+### b) 
+Construct a logical vector indicating whether a character has a title (i.e., Rev. and
+Dr.).
+
+Well I regret not reading this question before putting all that effor into removing them in the first place. 
+
+```{r}
+library(knitr)
+df <- data.frame(name3)
+df$title <- str_detect(string = name3, pattern = "\\w{2,3}\\.")
+kable(df)
+```
+### c) 
+Construct a logical vector indicating whether a character has a second name.
+
+```{r}
+df$secname <- str_detect(string = name3, pattern = "[A-Z]{1}\\.")
+kable(df)
+```
+
+It should be noted that this method is not very robust. If the data was more complex an additional column would be made to count the number of spaces without a proceeding period (to ignore the honerifics) and then the new column and the one I just created would be added together and if there was one true, we would know that the character had a middle name.
+
+## Q4
+Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+### (a) `[0-9]+\\$`
+```{r}
+test <- c("gjkaef123892389$fsafsdlkj", "asfdlk$afsdlk", "234$123", "1234", "$23sf")
+test1 <- unlist(str_extract_all(test, pattern = "[0-9]+\\$" ))
+test1
+```
+From these examples we can see that the expression only brings a number and a $. And only in that speficic order.
+
+### (b) `\\b[a-z]{1,4}\\b`
+This will detect a word beging with 1-4 characters and another word edge. In other words any word that is between 1 and four chacters. Characters must be lowercase:
+```{r}
+test <- c("abcdefg", "abe def hgi", "abdefkl asl 234", "1234", "WTF", "abc")
+test1 <- str_extract_all(test, pattern = "\\b[a-z]{1,4}\\b" )
+test1
+```
+
+### (c) `.*?\\.txt$`
+
+
+### (d) `\\d{2}/\\d{2}/\\d{4}`
+### (e) `<(.+?)>.+?</\\1>`
