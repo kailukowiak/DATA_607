@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Assigment 3
-## Q 3
+## Question 3
 Copy the introductory example. The vector `name` stores the extracted names.
 ```{r}
 library(stringr)
@@ -50,6 +50,8 @@ df <- data.frame(name3)
 df$title <- str_detect(string = name3, pattern = "\\w{2,3}\\.")
 kable(df)
 ```
+
+
 ### c) 
 Construct a logical vector indicating whether a character has a second name.
 
@@ -60,7 +62,7 @@ kable(df)
 
 It should be noted that this method is not very robust. If the data was more complex an additional column would be made to count the number of spaces without a proceeding period (to ignore the honorifics) and then the new column and the one I just created would be added together and if there was one true, we would know that the character had a middle name.
 
-## Q4
+## Question 4
 Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
 
 ### (a) `[0-9]+\\$`
@@ -89,7 +91,7 @@ test1
 ```
 
 ### (d) `\\d{2}/\\d{2}/\\d{4}`
-This looks at three two digit numbers divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programmming. Also it would work for chonological dates but ambiguity would be involved because America and the rest of the world right them differently.)
+This looks at three two digit numbers divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programming. Also it would work for chronological dates but ambiguity would be involved because America and the rest of the world write dates in a different order.)
 ```{r}
 test <- c("23/42/2345", "abe def hgi", "12/13/234", "1/2/34", "WTF", "abc")
 test1 <- str_extract_all(test, pattern = "\\d{2}/\\d{2}/\\d{4}")
@@ -105,7 +107,7 @@ test <- c("<Probably not valid HTML> what </Probably not valid HTML>", "<12 not 
 test1 <- str_extract_all(test, pattern = "<(.+?)>.+?</\\1>")
 test1
 ```
-## Q9
+## Question 9
 The following code hides a secret message. Crack it with R and regular expressions.
 Hint: Some of the characters are more revealing than others! The code snippet is also
 available in the materials at www.r-datacollection.com.
