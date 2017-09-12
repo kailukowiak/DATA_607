@@ -58,6 +58,27 @@ We can see that unlisting this is a nice way to keep it cleaner (This is especia
 
 
 ```{r}
-
+str_extract_all(example.obj, "A.+?sentence")
 ```
+Big difference using the back slash to negate the anything properties of it. 
+```{r}
+unlist(str_extract_all(example.obj, "\\."))
+unlist(str_extract_all(example.obj, "."))
+```
+
+Stuff got pretty complex in the text. I would suggest buying it as a reference.
+
+
+Getting simpson episodes.
+```{r}
+library(XML)
+if(!file.exists("listOfSimpsonsEpisodes.html")){
+link <- "http://en.wikipedia.org/wiki/List_of_The_Simpsons_episodes"
+download.file(link, "listOfSimpsonsEpisodes.html", mode="wb")
+}
+```
+
+
+
+[This](http://r4ds.had.co.nz/strings.html) has some really useful info on it as well. Slightly less dense but also less 
 
