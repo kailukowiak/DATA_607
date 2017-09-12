@@ -91,7 +91,7 @@ test1
 ```
 
 ### (d) `\\d{2}/\\d{2}/\\d{4}`
-This looks at three two digit numbers divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programming. Also it would work for chronological dates but ambiguity would be involved because America and the rest of the world write dates in a different order.)
+This looks at two two digit numbers and a four diget number divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programming. Also it would work for chronological dates but ambiguity would be involved because America and the rest of the world write dates in a different order.)
 ```{r}
 test <- c("23/42/2345", "abe def hgi", "12/13/234", "1/2/34", "WTF", "abc")
 test1 <- str_extract_all(test, pattern = "\\d{2}/\\d{2}/\\d{4}")
