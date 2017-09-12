@@ -2,7 +2,12 @@
 title: "Week 3 Assigment Data 607"
 author: "Kai Lukowiak"
 date: '2017-09-11'
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
@@ -20,8 +25,7 @@ name # This was taken from the textbook.
 ```
 
 ### a)
-Use the tools of this chapter to rearrange the vector so that all elements conform to the
-standard first_name last_name.
+**Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.**
 
 I am assuming that the instructions demand that honorifics are also removed. (I.e. J.K. Rowling stays the same but Ms. J.K. Rowling drops the Ms.)
 ```{r}
@@ -39,8 +43,7 @@ name4
 ```
 
 ### b) 
-Construct a logical vector indicating whether a character has a title (i.e., Rev. and
-Dr.).
+**Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).**
 
 Well I regret not reading this question before putting all that offer into removing them in the first place. 
 
@@ -53,7 +56,7 @@ kable(df)
 
 
 ### c) 
-Construct a logical vector indicating whether a character has a second name.
+**Construct a logical vector indicating whether a character has a second name.**
 
 ```{r}
 df$secname <- str_detect(string = name3, pattern = "[A-Z]{1}\\.")
@@ -63,7 +66,7 @@ kable(df)
 It should be noted that this method is not very robust. If the data was more complex an additional column would be made to count the number of spaces without a proceeding period (to ignore the honorifics) and then the new column and the one I just created would be added together and if there was one true, we would know that the character had a middle name.
 
 ## Question 4
-Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+**Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.**
 
 ### (a) `[0-9]+\\$`
 ```{r}
@@ -74,7 +77,7 @@ test1
 From these examples we can see that the expression only brings a number and a $. And only in that specific order.
 
 ### (b) `\\b[a-z]{1,4}\\b`
-This will detect a word begging with 1-4 characters and another word edge. In other words any word that is between 1 and four charters. Characters must be lowercase:
+This will detect a word beginning with 1-4 characters and another word edge. In other words any word that is between 1 and four charters. Characters must be lowercase:
 ```{r}
 test <- c("abcdefg", "abe def hgi", "abdefkl asl 234", "1234", "WTF", "abc")
 test1 <- str_extract_all(test, pattern = "\\b[a-z]{1,4}\\b" )
@@ -91,7 +94,7 @@ test1
 ```
 
 ### (d) `\\d{2}/\\d{2}/\\d{4}`
-This looks at two two digit numbers and a four diget number divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programming. Also it would work for chronological dates but ambiguity would be involved because America and the rest of the world write dates in a different order.)
+This looks at two two digit numbers and a four digit number divided by each other. This would be useful for dates. (I mean you could at least tell her you were could at programming. Also it would work for chronological dates but ambiguity would be involved because America and the rest of the world write dates in a different order.)
 ```{r}
 test <- c("23/42/2345", "abe def hgi", "12/13/234", "1/2/34", "WTF", "abc")
 test1 <- str_extract_all(test, pattern = "\\d{2}/\\d{2}/\\d{4}")
@@ -100,7 +103,7 @@ test1
 ```
 
 ### (e) `<(.+?)>.+?</\\1>`
-A quick Google of the code gives some very weird results. The top hit was regarding altimeters. 
+
 The query will look for "<" then code to make anything valid in the <>. then there can be anything and finally the code must be matched again but with o proceeding /. This is too find HTML tags (or a really weird coincidence.)
 ```{r}
 test <- c("<Probably not valid HTML> what </Probably not valid HTML>", "<12 not HTML> did not captialize the same </12 not html>", "12/13/234", "<12 not HTML> captialized the same </12 not HTML>", "WTF", "abc")
@@ -108,7 +111,7 @@ test1 <- str_extract_all(test, pattern = "<(.+?)>.+?</\\1>")
 test1
 ```
 ## Question 9
-The following code hides a secret message. Crack it with R and regular expressions.
+**The following code hides a secret message.** Crack it with R and regular expressions.
 Hint: Some of the characters are more revealing than others! The code snippet is also
 available in the materials at www.r-datacollection.com.
 
@@ -134,6 +137,13 @@ for(i in prefer){
 }
 y
 ```
+
+```{r}
+#coolfunct <- 
+#apply(prefer, 2, unlist(str_locate(code, )))
+```
+
+
 here is the actual code :)
 ```{r}
 z=c()
