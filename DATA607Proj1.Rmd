@@ -13,3 +13,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Project 1
+
+The project can be read from the PDF posted on [github.com](https://github.com/kaiserxc/DATA_607/tree/master/Project%201)
