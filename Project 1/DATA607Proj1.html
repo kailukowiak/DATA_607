@@ -329,11 +329,11 @@ opp_id &lt;-<span class="st"> </span><span class="kw">str_extract_all</span>(<sp
 </div>
 <div id="turning-the-list-into-a-data-frame" class="section level2">
 <h2>Turning the list into a data frame</h2>
+<p>Thanks to <a href="found%20herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data">this</a></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n.obs &lt;-<span class="st"> </span><span class="kw">sapply</span>(opp_id, length)
 seq.max &lt;-<span class="st"> </span><span class="kw">seq_len</span>(<span class="kw">max</span>(n.obs))
 mat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">sapply</span>(opp_id, <span class="st">&quot;[&quot;</span>, <span class="dt">i =</span> seq.max)) 
-df2 &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mat)
-<span class="co"># found herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data</span></code></pre></div>
+df2 &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mat)</code></pre></div>
 </div>
 <div id="replacing-the-ids-with-ratings" class="section level2">
 <h2>Replacing the id’s with ratings</h2>
@@ -493,7 +493,7 @@ df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<sp
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">data_frame</span>(p_id, p_name, state, p_point, p_rate, df3$oppAvg )
-<span class="kw">colnames</span>(df) &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Player_Name&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="st">&quot;Points&quot;</span>, <span class="st">&quot;Pre_Match_Rating&quot;</span>, <span class="st">&quot;Opponen_Average&quot;</span>)
+<span class="kw">colnames</span>(df) &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Player_Name&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="st">&quot;Point&quot;</span>, <span class="st">&quot;Pre_Match_Rating&quot;</span>, <span class="st">&quot;Opponent_Average&quot;</span>)
 <span class="kw">kable</span>(<span class="kw">head</span>(df, <span class="dv">10</span>))</code></pre></div>
 <table>
 <thead>
@@ -501,9 +501,9 @@ df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<sp
 <th align="right">ID</th>
 <th align="left">Player_Name</th>
 <th align="left">State</th>
-<th align="right">Points</th>
+<th align="right">Point</th>
 <th align="right">Pre_Match_Rating</th>
-<th align="right">Opponen_Average</th>
+<th align="right">Opponent_Average</th>
 </tr>
 </thead>
 <tbody>
@@ -587,8 +587,65 @@ df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<sp
 <td align="right">1365</td>
 <td align="right">1554</td>
 </tr>
+<tr class="odd">
+<td align="right">## Wr</td>
+<td align="left">ite the CSV</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
 </tbody>
 </table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(df, <span class="dt">file =</span> <span class="st">&quot;/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Project 1/clean_tournamentinfo.txt&quot;</span>)</code></pre></div>
+</div>
+<div id="does-chess-rank-people" class="section level2">
+<h2>Does chess rank people</h2>
+<p>Let’s do a regression to find out.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">lm</span>(Opponent_Average ~<span class="st"> </span>Pre_Match_Rating, <span class="dt">data =</span> df)
+<span class="kw">summary</span>(fit)</code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Opponent_Average ~ Pre_Match_Rating, data = df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -259.34  -67.43   13.95   83.48  184.67 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      1.201e+03  7.745e+01  15.510   &lt;2e-16 ***
+## Pre_Match_Rating 1.287e-01  5.519e-02   2.332    0.023 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 116.3 on 62 degrees of freedom
+## Multiple R-squared:  0.08062,    Adjusted R-squared:  0.06579 
+## F-statistic: 5.437 on 1 and 62 DF,  p-value: 0.02298</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(<span class="dt">x =</span> df$Pre_Match_Rating, <span class="dt">y =</span> df$Opponent_Average)</code></pre></div>
+<pre><code>## [1] 0.2839375</code></pre>
+<p>Less so than I would have thought.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">lm</span>(Point ~<span class="st"> </span>Pre_Match_Rating, <span class="dt">data =</span> df)
+<span class="kw">summary</span>(fit)</code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Point ~ Pre_Match_Rating, data = df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.86623 -0.56507 -0.06999  0.34002  2.54694 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      -0.4635332  0.6562549  -0.706    0.483    
+## Pre_Match_Rating  0.0028299  0.0004676   6.052 9.09e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.9853 on 62 degrees of freedom
+## Multiple R-squared:  0.3714, Adjusted R-squared:  0.3612 
+## F-statistic: 36.63 on 1 and 62 DF,  p-value: 9.093e-08</code></pre>
+<p>No surprise here. Being a good player means you score more.</p>
 </div>
 </div>
 

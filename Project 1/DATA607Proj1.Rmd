@@ -137,7 +137,8 @@ summary(fit)
 cor(x = df$Pre_Match_Rating, y = df$Opponent_Average)
 ```
 
-This might suggest otherwise.
+Less so than I would have thought.
+
 
 ```{r}
 fit <- lm(Point ~ Pre_Match_Rating, data = df)
@@ -146,4 +147,18 @@ summary(fit)
 
 No surprise here. Being a good player means you score more.
 
+## Graphs
+
+
+
+
+```{r}
+library(ggplot2)
+qplot(df$Pre_Match_Rating)
+```
+Looks like a histogram isn't the best.
+
+```{r}
+qplot(x = df$ID, y= df$Pre_Match_Rating, geom = "point")
+```
 
