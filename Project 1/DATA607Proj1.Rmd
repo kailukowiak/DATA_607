@@ -16,3 +16,105 @@ knitr::opts_chunk$set(echo = TRUE)
 # Project 1
 
 The project can be read from the PDF posted on [github.com](https://github.com/kaiserxc/DATA_607/tree/master/Project%201)
+
+
+## Loading libraries
+
+The necessary libraries. 
+```{r}
+library(stringr)
+library(knitr)
+library(dplyr)
+```
+
+First we have to load the data. I'm going to load it from github.com so that the project will run regardless of the comptuer directory.
+
+## Loading data
+
+```{r}
+theUrl <- "https://raw.githubusercontent.com/kaiserxc/DATA_607/master/Project%201/tournamentinfo.txt"
+txtFile <- read.csv(theUrl, header = FALSE)
+txtFile[c(1:10),] # This command was used because head() did not behave.
+
+tail(txtFile) # Looking at the tail function it appears to work in the MD
+# file but not here. I'll leave both in to show diff methods.
+
+```
+
+## Cleaning data
+The girst 4 rows contain info on the turnament and are superflous to our project. 
+
+
+```{r}
+txtFile1 <-txtFile[-c(1:4),]
+txtFile1 %>% head() 
+class(txtFile1)
+
+```
+We need to change this to character
+
+```{r}
+txtFile1 <- as.character(txtFile1)
+class(txtFile1)
+```
+
+
+
+Success!
+
+
+We need the first and second rows out of every three (discard the third). We also need to seperate them. 
+```{r}
+name <- txtFile1[seq(from = 1, to = length(txtFile1), by = 3)]
+rating <- txtFile1[seq(from = 2, to = length(txtFile1), by = 3)]
+
+```
+
+
+## Extracting relevant data
+
+```{r}
+p_id <- as.integer(str_extract(name, "\\d+")) # could have just done c(1:64)
+p_name <- str_trim(str_extract(name, "(\\w+\\s){2,3}")) #This works because name is the first instance.
+p_point <- as.numeric(str_extract(name, "\\d.\\d"))
+p_rate <- as.integer(str_extract(str_extract(rating, "\\D\\d{3,4}\\D"), "\\d+")) 
+#Two extracts are messy but it works.
+opp <- as.integer(str_extract(str_extract(name,"\\d+\\|"), "\\d+")) # Average pre rating.
+state <- str_extract(rating, "\\w\\w")
+
+```
+
+
+```{r}
+opp_id <- str_extract_all(str_extract_all(name, "\\d+\\|"), "\\d+")
+
+# word.list <- list(letters[1:4], letters[1:5], letters[1:2], letters[1:6])
+n.obs <- sapply(opp_id, length)
+seq.max <- seq_len(max(n.obs))
+mat <- t(sapply(opp_id, "[", i = seq.max)) 
+df2 <- as.data.frame(mat)
+# found herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data
+```
+
+```{r}
+key <- data.frame(p_id, p_rate)
+df3 <- df2
+df3[] <- key$p_rate[match(unlist(df2), key$p_id)]
+kable(head(df3))
+```
+
+
+We now have a seperate dataframe with all the initial ratings of the opponents for each player.
+We now need to get the average for each player.
+
+```{r}
+df3$oppAvg <- round(apply(df3, 1, mean, na.rm=TRUE))
+```
+
+
+```{r}
+df <- data_frame(p_id, p_name, p_point, p_rate, opp, state)
+
+kable(head(df, 10))
+```
+
