@@ -324,17 +324,20 @@ rating &lt;-<span class="st"> </span>txtFile1[<span class="kw">seq</span>(<span 
 p_name &lt;-<span class="st"> </span><span class="kw">str_trim</span>(<span class="kw">str_extract</span>(name, <span class="st">&quot;(</span><span class="ch">\\</span><span class="st">w+</span><span class="ch">\\</span><span class="st">s){2,3}&quot;</span>)) <span class="co">#This works because name is the first instance.</span>
 p_point &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">str_extract</span>(name, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d.</span><span class="ch">\\</span><span class="st">d&quot;</span>))
 p_rate &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">str_extract</span>(<span class="kw">str_extract</span>(rating, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">D</span><span class="ch">\\</span><span class="st">d{3,4}</span><span class="ch">\\</span><span class="st">D&quot;</span>), <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)) 
-<span class="co">#Two extracts are messy but it works.</span>
-opp &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">str_extract</span>(<span class="kw">str_extract</span>(name,<span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+</span><span class="ch">\\</span><span class="st">|&quot;</span>), <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)) <span class="co"># Average pre rating.</span>
-state &lt;-<span class="st"> </span><span class="kw">str_extract</span>(rating, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">w</span><span class="ch">\\</span><span class="st">w&quot;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">opp_id &lt;-<span class="st"> </span><span class="kw">str_extract_all</span>(<span class="kw">str_extract_all</span>(name, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+</span><span class="ch">\\</span><span class="st">|&quot;</span>), <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)
-
-<span class="co"># word.list &lt;- list(letters[1:4], letters[1:5], letters[1:2], letters[1:6])</span>
-n.obs &lt;-<span class="st"> </span><span class="kw">sapply</span>(opp_id, length)
+state &lt;-<span class="st"> </span><span class="kw">str_extract</span>(rating, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">w</span><span class="ch">\\</span><span class="st">w&quot;</span>)
+opp_id &lt;-<span class="st"> </span><span class="kw">str_extract_all</span>(<span class="kw">str_extract_all</span>(name, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+</span><span class="ch">\\</span><span class="st">|&quot;</span>), <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)</code></pre></div>
+</div>
+<div id="turning-the-list-into-a-data-frame" class="section level2">
+<h2>Turning the list into a data frame</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n.obs &lt;-<span class="st"> </span><span class="kw">sapply</span>(opp_id, length)
 seq.max &lt;-<span class="st"> </span><span class="kw">seq_len</span>(<span class="kw">max</span>(n.obs))
 mat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">sapply</span>(opp_id, <span class="st">&quot;[&quot;</span>, <span class="dt">i =</span> seq.max)) 
 df2 &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mat)
 <span class="co"># found herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data</span></code></pre></div>
+</div>
+<div id="replacing-the-ids-with-ratings" class="section level2">
+<h2>Replacing the id’s with ratings</h2>
+<p>Special thanks to <a href="https://stackoverflow.com/questions/35636315/replace-values-in-a-dataframe-based-on-lookup-table">this stack overflow</a> for helping me.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">key &lt;-<span class="st"> </span><span class="kw">data.frame</span>(p_id, p_rate)
 df3 &lt;-<span class="st"> </span>df2
 df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<span class="kw">unlist</span>(df2), key$p_id)]
@@ -408,102 +411,181 @@ df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<sp
 </tr>
 </tbody>
 </table>
-<p>We now have a seperate dataframe with all the initial ratings of the opponents for each player. We now need to get the average for each player.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df3$oppAvg &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">apply</span>(df3, <span class="dv">1</span>, mean, <span class="dt">na.rm=</span><span class="ot">TRUE</span>))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">data_frame</span>(p_id, p_name, p_point, p_rate, opp, state)
-
+</div>
+<div id="calculating-the-average" class="section level2">
+<h2>Calculating the average</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df3$oppAvg &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">apply</span>(df3, <span class="dv">1</span>, mean, <span class="dt">na.rm=</span><span class="ot">TRUE</span>))
+<span class="kw">kable</span>(<span class="kw">head</span>(df3))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">V1</th>
+<th align="right">V2</th>
+<th align="right">V3</th>
+<th align="right">V4</th>
+<th align="right">V5</th>
+<th align="right">V6</th>
+<th align="right">V7</th>
+<th align="right">oppAvg</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1436</td>
+<td align="right">1563</td>
+<td align="right">1600</td>
+<td align="right">1610</td>
+<td align="right">1649</td>
+<td align="right">1663</td>
+<td align="right">1716</td>
+<td align="right">1605</td>
+</tr>
+<tr class="even">
+<td align="right">1175</td>
+<td align="right">917</td>
+<td align="right">1716</td>
+<td align="right">1629</td>
+<td align="right">1604</td>
+<td align="right">1595</td>
+<td align="right">1649</td>
+<td align="right">1469</td>
+</tr>
+<tr class="odd">
+<td align="right">1641</td>
+<td align="right">955</td>
+<td align="right">1745</td>
+<td align="right">1563</td>
+<td align="right">1712</td>
+<td align="right">1666</td>
+<td align="right">1663</td>
+<td align="right">1564</td>
+</tr>
+<tr class="even">
+<td align="right">1363</td>
+<td align="right">1507</td>
+<td align="right">1553</td>
+<td align="right">1579</td>
+<td align="right">1655</td>
+<td align="right">1564</td>
+<td align="right">1794</td>
+<td align="right">1574</td>
+</tr>
+<tr class="odd">
+<td align="right">1242</td>
+<td align="right">980</td>
+<td align="right">1663</td>
+<td align="right">1666</td>
+<td align="right">1716</td>
+<td align="right">1610</td>
+<td align="right">1629</td>
+<td align="right">1501</td>
+</tr>
+<tr class="even">
+<td align="right">1399</td>
+<td align="right">1602</td>
+<td align="right">1712</td>
+<td align="right">1438</td>
+<td align="right">1365</td>
+<td align="right">1552</td>
+<td align="right">1563</td>
+<td align="right">1519</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">data_frame</span>(p_id, p_name, state, p_point, p_rate, df3$oppAvg )
+<span class="kw">colnames</span>(df) &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Player_Name&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="st">&quot;Points&quot;</span>, <span class="st">&quot;Pre_Match_Rating&quot;</span>, <span class="st">&quot;Opponen_Average&quot;</span>)
 <span class="kw">kable</span>(<span class="kw">head</span>(df, <span class="dv">10</span>))</code></pre></div>
 <table>
 <thead>
 <tr class="header">
-<th align="right">p_id</th>
-<th align="left">p_name</th>
-<th align="right">p_point</th>
-<th align="right">p_rate</th>
-<th align="right">opp</th>
-<th align="left">state</th>
+<th align="right">ID</th>
+<th align="left">Player_Name</th>
+<th align="left">State</th>
+<th align="right">Points</th>
+<th align="right">Pre_Match_Rating</th>
+<th align="right">Opponen_Average</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
 <td align="left">GARY HUA</td>
+<td align="left">ON</td>
 <td align="right">6.0</td>
 <td align="right">1794</td>
-<td align="right">39</td>
-<td align="left">ON</td>
+<td align="right">1605</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
 <td align="left">DAKSHESH DARURI</td>
+<td align="left">MI</td>
 <td align="right">6.0</td>
 <td align="right">1553</td>
-<td align="right">63</td>
-<td align="left">MI</td>
+<td align="right">1469</td>
 </tr>
 <tr class="odd">
 <td align="right">3</td>
 <td align="left">ADITYA BAJAJ</td>
+<td align="left">MI</td>
 <td align="right">6.0</td>
 <td align="right">1384</td>
-<td align="right">8</td>
-<td align="left">MI</td>
+<td align="right">1564</td>
 </tr>
 <tr class="even">
 <td align="right">4</td>
 <td align="left">PATRICK H SCHILLING</td>
+<td align="left">MI</td>
 <td align="right">5.5</td>
 <td align="right">1716</td>
-<td align="right">23</td>
-<td align="left">MI</td>
+<td align="right">1574</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
 <td align="left">HANSHI ZUO</td>
+<td align="left">MI</td>
 <td align="right">5.5</td>
 <td align="right">1655</td>
-<td align="right">45</td>
-<td align="left">MI</td>
+<td align="right">1501</td>
 </tr>
 <tr class="even">
 <td align="right">6</td>
 <td align="left">HANSEN SONG</td>
+<td align="left">OH</td>
 <td align="right">5.0</td>
 <td align="right">1686</td>
-<td align="right">34</td>
-<td align="left">OH</td>
+<td align="right">1519</td>
 </tr>
 <tr class="odd">
 <td align="right">7</td>
 <td align="left">GARY DEE SWATHELL</td>
+<td align="left">MI</td>
 <td align="right">5.0</td>
 <td align="right">1649</td>
-<td align="right">57</td>
-<td align="left">MI</td>
+<td align="right">1372</td>
 </tr>
 <tr class="even">
 <td align="right">8</td>
 <td align="left">EZEKIEL HOUGHTON</td>
+<td align="left">MI</td>
 <td align="right">5.0</td>
 <td align="right">1641</td>
-<td align="right">3</td>
-<td align="left">MI</td>
+<td align="right">1468</td>
 </tr>
 <tr class="odd">
 <td align="right">9</td>
 <td align="left">STEFANO LEE</td>
+<td align="left">ON</td>
 <td align="right">5.0</td>
 <td align="right">1411</td>
-<td align="right">25</td>
-<td align="left">ON</td>
+<td align="right">1523</td>
 </tr>
 <tr class="even">
 <td align="right">10</td>
 <td align="left">ANVIT RAO</td>
+<td align="left">MI</td>
 <td align="right">5.0</td>
 <td align="right">1365</td>
-<td align="right">16</td>
-<td align="left">MI</td>
+<td align="right">1554</td>
 </tr>
 </tbody>
 </table>

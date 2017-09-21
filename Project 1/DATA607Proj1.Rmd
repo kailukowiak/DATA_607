@@ -78,24 +78,24 @@ p_id <- as.integer(str_extract(name, "\\d+")) # could have just done c(1:64)
 p_name <- str_trim(str_extract(name, "(\\w+\\s){2,3}")) #This works because name is the first instance.
 p_point <- as.numeric(str_extract(name, "\\d.\\d"))
 p_rate <- as.integer(str_extract(str_extract(rating, "\\D\\d{3,4}\\D"), "\\d+")) 
-#Two extracts are messy but it works.
-opp <- as.integer(str_extract(str_extract(name,"\\d+\\|"), "\\d+")) # Average pre rating.
 state <- str_extract(rating, "\\w\\w")
+opp_id <- str_extract_all(str_extract_all(name, "\\d+\\|"), "\\d+")
 
 ```
 
+## Turning the list into a data frame 
 
+Thanks to [this](found herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data)
 ```{r}
-opp_id <- str_extract_all(str_extract_all(name, "\\d+\\|"), "\\d+")
-
-# word.list <- list(letters[1:4], letters[1:5], letters[1:2], letters[1:6])
 n.obs <- sapply(opp_id, length)
 seq.max <- seq_len(max(n.obs))
 mat <- t(sapply(opp_id, "[", i = seq.max)) 
 df2 <- as.data.frame(mat)
-# found herehttps://stackoverflow.com/questions/15201305/how-to-convert-a-list-consisting-of-vector-of-different-lengths-to-a-usable-data
 ```
 
+## Replacing the id's with ratings
+
+Special thanks to [this stack overflow](https://stackoverflow.com/questions/35636315/replace-values-in-a-dataframe-based-on-lookup-table) for helping me. 
 ```{r}
 key <- data.frame(p_id, p_rate)
 df3 <- df2
@@ -104,17 +104,46 @@ kable(head(df3))
 ```
 
 
-We now have a seperate dataframe with all the initial ratings of the opponents for each player.
-We now need to get the average for each player.
+## Calculating the average
 
 ```{r}
 df3$oppAvg <- round(apply(df3, 1, mean, na.rm=TRUE))
+kable(head(df3))
 ```
 
 
 ```{r}
-df <- data_frame(p_id, p_name, p_point, p_rate, opp, state)
-
+df <- data_frame(p_id, p_name, state, p_point, p_rate, df3$oppAvg )
+colnames(df) <-  c("ID", "Player_Name", "State", "Point", "Pre_Match_Rating", "Opponent_Average")
 kable(head(df, 10))
 ```
+## Write the CSV
+
+```{r}
+write.csv(df, file = "/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Project 1/clean_tournamentinfo.txt")
+```
+
+
+## Does chess rank people
+
+Let's do a regression to find out.
+
+```{r}
+fit <- lm(Opponent_Average ~ Pre_Match_Rating, data = df)
+summary(fit)
+```
+
+```{r}
+cor(x = df$Pre_Match_Rating, y = df$Opponent_Average)
+```
+
+This might suggest otherwise.
+
+```{r}
+fit <- lm(Point ~ Pre_Match_Rating, data = df)
+summary(fit)
+```
+
+No surprise here. Being a good player means you score more.
+
 
