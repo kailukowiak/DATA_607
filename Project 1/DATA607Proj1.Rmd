@@ -156,9 +156,11 @@ No surprise here. Being a good player means you score more.
 library(ggplot2)
 qplot(df$Pre_Match_Rating)
 ```
+
 Looks like a histogram isn't the best.
 
 ```{r}
 qplot(x = df$ID, y= df$Pre_Match_Rating, geom = "point")
 ```
 
+Interesting, there seems to be a downward trend. 
