@@ -259,14 +259,6 @@ div.tocify {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(stringr)
 <span class="kw">library</span>(knitr)
 <span class="kw">library</span>(dplyr)</code></pre></div>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
 <p>First we have to load the data. I’m going to load it from github.com so that the project will run regardless of the comptuer directory.</p>
 </div>
 <div id="loading-data" class="section level2">
@@ -587,21 +579,16 @@ df3[] &lt;-<span class="st"> </span>key$p_rate[<span class="kw">match</span>(<sp
 <td align="right">1365</td>
 <td align="right">1554</td>
 </tr>
-<tr class="odd">
-<td align="right">## Wr</td>
-<td align="left">ite the CSV</td>
-<td align="left"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-</tr>
 </tbody>
 </table>
+</div>
+<div id="write-the-csv" class="section level2">
+<h2>Write the CSV</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(df, <span class="dt">file =</span> <span class="st">&quot;/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Project 1/clean_tournamentinfo.txt&quot;</span>)</code></pre></div>
 </div>
-<div id="does-chess-rank-people" class="section level2">
-<h2>Does chess rank people</h2>
-<p>Let’s do a regression to find out.</p>
+<div id="regressions" class="section level2">
+<h2>Regressions</h2>
+<p>Does rank impact how weak your opponents are?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">lm</span>(Opponent_Average ~<span class="st"> </span>Pre_Match_Rating, <span class="dt">data =</span> df)
 <span class="kw">summary</span>(fit)</code></pre></div>
 <pre><code>## 

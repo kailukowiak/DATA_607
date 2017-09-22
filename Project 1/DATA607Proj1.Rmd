@@ -21,7 +21,7 @@ The project can be read from the PDF posted on [github.com](https://github.com/k
 ## Loading libraries
 
 The necessary libraries. 
-```{r}
+```{r warning = FALSE, message =  FALSE}
 library(stringr)
 library(knitr)
 library(dplyr)
@@ -117,6 +117,7 @@ df <- data_frame(p_id, p_name, state, p_point, p_rate, df3$oppAvg )
 colnames(df) <-  c("ID", "Player_Name", "State", "Point", "Pre_Match_Rating", "Opponent_Average")
 kable(head(df, 10))
 ```
+
 ## Write the CSV
 
 ```{r}
@@ -124,9 +125,9 @@ write.csv(df, file = "/Users/kailukowiak/OneDrive - CUNY School of Professional 
 ```
 
 
-## Does chess rank people
+## Regressions
 
-Let's do a regression to find out.
+Does rank impact how weak your opponents are? 
 
 ```{r}
 fit <- lm(Opponent_Average ~ Pre_Match_Rating, data = df)
