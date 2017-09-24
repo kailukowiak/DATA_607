@@ -99,7 +99,7 @@ Special thanks to [this stack overflow](https://stackoverflow.com/questions/3563
 ```{r}
 key <- data.frame(p_id, p_rate)
 df3 <- df2
-df3[] <- key$p_rate[match(unlist(df2), key$p_id)]
+df3[] <- key$p_rate[match(unlist(df3), key$p_id)]
 kable(head(df3))
 ```
 
