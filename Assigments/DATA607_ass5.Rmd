@@ -46,15 +46,13 @@ df <- dbGetQuery(con, "SELECT * FROM alaskaflights")
 tbl_df(df)
 ```
 
-## Remove blank row:
+## Remove blank row and replacing na values with above:
 
 ```{r}
-df <- df %>% slice(-3)
-
-tbl_df( df)
-
+df %>% fill(airline) %>% drop_na()  #The order is important because drop_na will detlet all rows with 
+# any na's
+  
 ```
-
 
 ## Adding in values for NAs:
 
