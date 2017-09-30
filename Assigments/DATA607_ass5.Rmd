@@ -2,25 +2,32 @@
 title: "DATA_607_Ass5"
 author: "Kai Lukowiak"
 date: '2017-09-29'
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: pygments
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# 1
+# Q1
 Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above. You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
 
 ## Loading packages:
 
 ```{r , message = FALSE, warning=FALSE}
-#install.packages("mefa")
-
+library(knitr)
+library(gridExtra)
 library(knitr)
 library(dplyr)
 library(tidyr)
-
+library(ggplot2)
+library(ggthemes)
 if(!require(RPostgreSQL)){
     install.packages("RPostgreSQL")
     library(RPostgreSQL)
@@ -37,51 +44,197 @@ con <- dbConnect(drv, dbname = "kailukowiak",
                  user = "kailukowiak")
 ```
 
-#2
+# Q2
 Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy
 and transform your data. 
 
 ```{r}
 df <- dbGetQuery(con, "SELECT * FROM alaskaflights")
-tbl_df(df)
+kable(df)
 ```
 
-## Remove blank row and replacing na values with above:
+## Drop ID:
+```{r}
+df <- df %>% select(-id)
+```
+
+## Remove na row and repalce Na values:
 
 ```{r}
-df %>% fill(airline) %>% drop_na()  #The order is important because drop_na will detlet all rows with 
-# any na's
+df <- df %>% fill(airline) %>% drop_na()  
+# The order is important because drop_na will detlet all 
+# rows with any na's
   
-```
-
-## Adding in values for NAs:
-
-```{r}
-for(i in c(1:length(df$airline))){
-  if(is.na(df[i, "airline"])){
-    df[i, "airline"] = df[(i-1), "airline"]
-}
-}
 ```
 
 
 ## Gather the Data
 
 ```{r}
-df2 <- gather(df, "Destination", "Flight", 4:8)
-arrange(df2, airline, ontime)
+df2 <- gather(df, Airport, Flights, (3:7))
+kable(df2)
 ```
 
-The data can now be considered to be tidy because each column represents variable and each row and observation.
 
-#3
+# Q3 
 Perform analysis to compare the arrival delays for the two airlines.
 
-## Import aditional libraries
+## It is easier to reshape and compare elements by row:
 
 ```{r}
-library(ggplot2)
+
+df3 <- df2 %>% spread(flight_status, Flights)
+kable(df3)
+```
+
+We now can more imaginably work with this data set. 
+Next we must create a new column with the percentage for each row.
+
+```{r}
+df3 <- mutate(df3, Avg_On_Time = Ontime/(Ontime + Delayed))
+kable(arrange(df3, Avg_On_Time))
+```
+```{r}
+AirlinAVG <- group_by(df3, airline) %>% summarise(AirlineSuccess = mean(Avg_On_Time)) 
+kable(AirlinAVG)
+```
+
+```{r}
+ggplot(data = AirlinAVG, aes(x = airline, y = AirlineSuccess)) + 
+    geom_bar(stat = 'identity', width = 0.5) + 
+    geom_text(aes(label = format(AirlineSuccess, digits = 2)), vjust = -0.25) + 
+    ylim(0:1) + 
+    theme_economist()
+```
+
+Alaska is more on ontime. 
+
+Which airport is more on time?
+
+```{r}
+AirportAVG <- group_by(df3, Airport) %>% summarise(AirportSuccess = mean(Avg_On_Time)) 
+kable(AirportAVG)
+```
+
+```{r}
+ggplot(data = AirportAVG, aes(x = Airport, y = AirportSuccess)) + 
+    geom_bar(stat = 'identity', width = 0.5) + 
+    geom_text(aes(label = format(AirportSuccess, digits = 2)), vjust = -0.25) + 
+    ylim(0:1) + 
+    theme_economist()
+```
+
+Phoenix seems to be best.
+
+Do the different airlines fair better or worse at different airports?
+
+
+```{r}
+dfpaired <- df3 %>% select(-c(Delayed, Ontime)) %>% spread(Airport, Avg_On_Time)
+
+ggplot(data = df3, mapping = aes(x = Airport, y = Avg_On_Time, fill = airline)) +
+  geom_bar(stat = 'identity', position = 'dodge',  width = 0.75,) +
+  geom_text(aes(label = format(Avg_On_Time, digits = 2)), vjust = -0.3, 
+            position = position_dodge(width=0.75)) +
+  ylim(0:1) +
+  theme_economist() + scale_fill_economist()
+   
 
 
 ```
+
+
+This is cool but it is hard to tell if there are differences since AM West does worse all the time. We need a way to control for this:
+
+Using the mean:
+
+```{r}
+kable(AirlinAVG)
+alskAvg <- as.numeric(AirlinAVG[1,2])
+amAvg <- as.numeric(AirlinAVG[2,2])
+
+# We now have the averages.
+dfCon1 <- df3 %>% 
+  mutate(OnTimeControl1 = ifelse(airline == "ALASKA", yes = Avg_On_Time / alskAvg, 
+                                 no = Avg_On_Time / amAvg))  
+# Cool did not expect it to vectorize Avg_On_Time and not alskAvg. R is the best. 
+kable(dfCon1)
+
+```
+
+Now to graph:
+
+```{r}
+ggplot(data = dfCon1, mapping = aes(x = Airport, y = OnTimeControl1, fill = airline)) +
+  geom_bar(stat = 'identity', position = 'dodge',  width = 0.75) +
+  geom_text(aes(label = format(OnTimeControl1, digits = 2)), vjust = -0.3, 
+            position = position_dodge(width=0.75)) +
+  theme_economist() + scale_fill_economist() # For some reason ylim does not work well
+```
+
+We can see that we do have some success and that when we control, AM West does do better some airport than we might expect. This is interesting because it means different conditions at the airports effect the carriers differently. 
+
+
+
+```{r}
+df4 <- df3 %>% 
+  select(-c(Delayed, Ontime)) %>% 
+  spread(airline, Avg_On_Time)
+kable(df4)
+```
+
+Now we controlled for how bad the airlines are, but we are being unfair to the airports because we don't know which airport gets more of the better trafic. Maybe the airports are more similar and only bad airline trafic makes them look worse.
+
+```{r}
+portControl <- spread(df2, airline, Flights)  
+portControl1 <- group_by(portControl, Airport) %>% summarise(alskNum = sum(ALASKA)) 
+portControl2 <- group_by(portControl, Airport) %>% summarise(amNum = sum(AMWEST)) 
+portDF <- left_join(portControl1, portControl2) %>% mutate( percAlsk = alskNum/(alskNum + amNum))
+kable(portDF)
+```
+
+To graph this compared to the initial airport graph:
+
+```{r}
+pltA <- ggplot(data = portDF, mapping = aes(x = Airport, y = percAlsk)) +
+  geom_bar(stat = 'identity', position = 'dodge',  width = 0.75) +
+  geom_text(aes(label = format(percAlsk, digits = 2)), vjust = -0.3, 
+            position = position_dodge(width=0.75)) +
+  ylim(0:1)+
+  theme_economist() + scale_fill_economist() # For some reason ylim does not work well
+
+
+pltB <- ggplot(data = AirportAVG, aes(x = Airport, y = AirportSuccess)) + 
+    geom_bar(stat = 'identity', width = 0.5) + 
+    geom_text(aes(label = format(AirportSuccess, digits = 2)), vjust = -0.25) + 
+    ylim(0:1) + 
+    theme_economist()
+grid.arrange(pltA, pltB)
+
+```
+
+
+
+
+## Graphs are cool but ttests are even cooler.
+
+
+```{r}
+cor( portDF$percAlsk, AirportAVG$AirportSuccess)
+```
+
+Interesting, the higher percent of alaska flights, the lower the success rates. This goes against the data we ahve on the quality of AM West. It is probably explained by other flights from other cariers. 
+
+```{r}
+t.test(df4$ALASKA, df4$AMWEST)
+```
+
+
+Statistically we cannot say that There is difference. But we also ahve limited samples. 
+
+I won't try and do the same with airports because I'd lose degrees of freedom PDQ. 
+
+
+
+
 
