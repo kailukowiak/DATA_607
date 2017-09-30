@@ -124,30 +124,90 @@ $(document).ready(function () {
 </div>
 
 
-<p>Loading packages:</p>
-<pre class="r"><code>library(knitr)
+<div id="section" class="section level1">
+<h1>1</h1>
+<p>Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above. You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.</p>
+<div id="loading-packages" class="section level2">
+<h2>Loading packages:</h2>
+<pre class="r"><code>#install.packages(&quot;mefa&quot;)
+
+library(knitr)
 library(dplyr)
 library(tidyr)
+
 if(!require(RPostgreSQL)){
     install.packages(&quot;RPostgreSQL&quot;)
     library(RPostgreSQL)
 }</code></pre>
-<p>Loading data from postgres:</p>
+</div>
+<div id="loading-data-from-postgres" class="section level2">
+<h2>Loading data from postgres:</h2>
 <pre class="r"><code>drv &lt;- dbDriver(&quot;PostgreSQL&quot;)
 con &lt;- dbConnect(drv, dbname = &quot;kailukowiak&quot;,
                  host = &quot;localhost&quot;, port = 5432,
                  user = &quot;kailukowiak&quot;)</code></pre>
-<p>Loading Data:</p>
+</div>
+</div>
+<div id="section-1" class="section level1">
+<h1>2</h1>
+<p>Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.</p>
 <pre class="r"><code>df &lt;- dbGetQuery(con, &quot;SELECT * FROM alaskaflights&quot;)
-tbl_df(head(df,20))</code></pre>
+tbl_df(df)</code></pre>
 <pre><code>## # A tibble: 5 x 8
 ##      id airline  ontime losangeles phoenix sandiego sanfran seattle
 ## * &lt;int&gt;   &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;   &lt;int&gt;    &lt;int&gt;   &lt;int&gt;   &lt;int&gt;
 ## 1     1  ALASKA  Ontime        497     221      212     503    1841
-## 2     2  ALASKA Delayed         62      12       20     102     305
+## 2     2    &lt;NA&gt; Delayed         62      12       20     102     305
 ## 3     3    &lt;NA&gt;    &lt;NA&gt;         NA      NA       NA      NA      NA
 ## 4     4  AMWEST  Ontime        694    4840      383     320     201
-## 5     5  AMWEST Delayed        117     415       65     129      61</code></pre>
+## 5     5    &lt;NA&gt; Delayed        117     415       65     129      61</code></pre>
+<div id="remove-blank-row" class="section level2">
+<h2>Remove blank row:</h2>
+<pre class="r"><code>df &lt;- df %&gt;% slice(-3)
+
+tbl_df( df)</code></pre>
+<pre><code>## # A tibble: 4 x 8
+##      id airline  ontime losangeles phoenix sandiego sanfran seattle
+##   &lt;int&gt;   &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;   &lt;int&gt;    &lt;int&gt;   &lt;int&gt;   &lt;int&gt;
+## 1     1  ALASKA  Ontime        497     221      212     503    1841
+## 2     2    &lt;NA&gt; Delayed         62      12       20     102     305
+## 3     4  AMWEST  Ontime        694    4840      383     320     201
+## 4     5    &lt;NA&gt; Delayed        117     415       65     129      61</code></pre>
+</div>
+<div id="adding-in-values-for-nas" class="section level2">
+<h2>Adding in values for NAs:</h2>
+<pre class="r"><code>for(i in c(1:length(df$airline))){
+  if(is.na(df[i, &quot;airline&quot;])){
+    df[i, &quot;airline&quot;] = df[(i-1), &quot;airline&quot;]
+}
+}</code></pre>
+</div>
+<div id="gather-the-data" class="section level2">
+<h2>Gather the Data</h2>
+<pre class="r"><code>gather(df, &quot;Destination&quot;, &quot;Flight&quot;, 4:8)</code></pre>
+<pre><code>##    id airline  ontime Destination Flight
+## 1   1  ALASKA  Ontime  losangeles    497
+## 2   2  ALASKA Delayed  losangeles     62
+## 3   4  AMWEST  Ontime  losangeles    694
+## 4   5  AMWEST Delayed  losangeles    117
+## 5   1  ALASKA  Ontime     phoenix    221
+## 6   2  ALASKA Delayed     phoenix     12
+## 7   4  AMWEST  Ontime     phoenix   4840
+## 8   5  AMWEST Delayed     phoenix    415
+## 9   1  ALASKA  Ontime    sandiego    212
+## 10  2  ALASKA Delayed    sandiego     20
+## 11  4  AMWEST  Ontime    sandiego    383
+## 12  5  AMWEST Delayed    sandiego     65
+## 13  1  ALASKA  Ontime     sanfran    503
+## 14  2  ALASKA Delayed     sanfran    102
+## 15  4  AMWEST  Ontime     sanfran    320
+## 16  5  AMWEST Delayed     sanfran    129
+## 17  1  ALASKA  Ontime     seattle   1841
+## 18  2  ALASKA Delayed     seattle    305
+## 19  4  AMWEST  Ontime     seattle    201
+## 20  5  AMWEST Delayed     seattle     61</code></pre>
+</div>
+</div>
 
 
 

@@ -9,19 +9,25 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Loading packages:
+# 1
+Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above. You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
+
+## Loading packages:
 
 ```{r , message = FALSE, warning=FALSE}
+#install.packages("mefa")
+
 library(knitr)
 library(dplyr)
 library(tidyr)
+
 if(!require(RPostgreSQL)){
     install.packages("RPostgreSQL")
     library(RPostgreSQL)
 }
 ```
 
-Loading data from postgres:
+## Loading data from postgres:
 
 ```{r}
 
@@ -31,10 +37,53 @@ con <- dbConnect(drv, dbname = "kailukowiak",
                  user = "kailukowiak")
 ```
 
-Loading Data:
+#2
+Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy
+and transform your data. 
 
 ```{r}
 df <- dbGetQuery(con, "SELECT * FROM alaskaflights")
-tbl_df(head(df,20))
+tbl_df(df)
+```
+
+## Remove blank row:
+
+```{r}
+df <- df %>% slice(-3)
+
+tbl_df( df)
+
+```
+
+
+## Adding in values for NAs:
+
+```{r}
+for(i in c(1:length(df$airline))){
+  if(is.na(df[i, "airline"])){
+    df[i, "airline"] = df[(i-1), "airline"]
+}
+}
+```
+
+
+## Gather the Data
+
+```{r}
+df2 <- gather(df, "Destination", "Flight", 4:8)
+arrange(df2, airline, ontime)
+```
+
+The data can now be considered to be tidy because each column represents variable and each row and observation.
+
+#3
+Perform analysis to compare the arrival delays for the two airlines.
+
+## Import aditional libraries
+
+```{r}
+library(ggplot2)
+
+
 ```
 
