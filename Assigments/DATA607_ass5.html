@@ -124,6 +124,7 @@ $(document).ready(function () {
 </div>
 
 
+<p>Loading packages:</p>
 <pre class="r"><code>library(knitr)
 library(dplyr)
 library(tidyr)
@@ -131,6 +132,22 @@ if(!require(RPostgreSQL)){
     install.packages(&quot;RPostgreSQL&quot;)
     library(RPostgreSQL)
 }</code></pre>
+<p>Loading data from postgres:</p>
+<pre class="r"><code>drv &lt;- dbDriver(&quot;PostgreSQL&quot;)
+con &lt;- dbConnect(drv, dbname = &quot;kailukowiak&quot;,
+                 host = &quot;localhost&quot;, port = 5432,
+                 user = &quot;kailukowiak&quot;)</code></pre>
+<p>Loading Data:</p>
+<pre class="r"><code>df &lt;- dbGetQuery(con, &quot;SELECT * FROM alaskaflights&quot;)
+tbl_df(head(df,20))</code></pre>
+<pre><code>## # A tibble: 5 x 8
+##      id airline  ontime losangeles phoenix sandiego sanfran seattle
+## * &lt;int&gt;   &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;   &lt;int&gt;    &lt;int&gt;   &lt;int&gt;   &lt;int&gt;
+## 1     1  ALASKA  Ontime        497     221      212     503    1841
+## 2     2  ALASKA Delayed         62      12       20     102     305
+## 3     3    &lt;NA&gt;    &lt;NA&gt;         NA      NA       NA      NA      NA
+## 4     4  AMWEST  Ontime        694    4840      383     320     201
+## 5     5  AMWEST Delayed        117     415       65     129      61</code></pre>
 
 
 

@@ -35,6 +35,6 @@ Loading Data:
 
 ```{r}
 df <- dbGetQuery(con, "SELECT * FROM alaskaflights")
-kable(head(df,20))
+tbl_df(head(df,20))
 ```
 
