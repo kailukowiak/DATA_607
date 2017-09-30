@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Loading packages:
+
 ```{r , message = FALSE, warning=FALSE}
 library(knitr)
 library(dplyr)
@@ -19,7 +21,20 @@ if(!require(RPostgreSQL)){
 }
 ```
 
+Loading data from postgres:
+
 ```{r}
 
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname = "kailukowiak",
+                 host = "localhost", port = 5432,
+                 user = "kailukowiak")
+```
+
+Loading Data:
+
+```{r}
+df <- dbGetQuery(con, "SELECT * FROM alaskaflights")
+kable(head(df,20))
 ```
 
