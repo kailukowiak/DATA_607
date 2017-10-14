@@ -1,0 +1,42 @@
+---
+title: "DATA 607 Assignment 2"
+author: "Kai Lukowiak"
+date: '2017-09-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(knitr)
+if(!require(RPostgreSQL)){
+    install.packages("RPostgreSQL")
+    library(RPostgreSQL)
+}
+```
+
+Password:
+
+```{r}
+pw <- {
+  "OBSCURED"
+}
+```
+
+Loading postgres
+```{r}
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname = "Mydb",
+                 host = "localhost", port = 5432,
+                 user = "postgres", password = pw)
+rm(pw)
+```
+Getting the data:
+```{r}
+df <- dbGetQuery(con, "SELECT * FROM movie_table")
+kable(head(df,20))
+```
+
+Special thanks to [this](https://www.r-bloggers.com/getting-started-with-postgresql-in-r/) website.
