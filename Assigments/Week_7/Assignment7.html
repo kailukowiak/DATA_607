@@ -124,6 +124,7 @@ $(document).ready(function () {
 </div>
 
 
+<p>The main part of this exercise was writing the books.* files by hand. See <a href>my</a></p>
 <pre class="r"><code>library(XML)</code></pre>
 <pre><code>## Warning: package 'XML' was built under R version 3.4.1</code></pre>
 <pre class="r"><code>library(knitr)
@@ -289,6 +290,9 @@ kable(books3)</code></pre>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>identical(books3, books2)</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<p>They’re not quite identical, but pretty close.</p>
 
 
 

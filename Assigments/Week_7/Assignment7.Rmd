@@ -46,4 +46,7 @@ books3 = fromJSON(url)
 kable(books3)
 ```
 
-
+```{r}
+identical(books3, books2)
+```
+They're not quite identical, but pretty close.
