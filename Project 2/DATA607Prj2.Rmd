@@ -29,7 +29,7 @@ tail(nycDF)
 ```
 
 ```{r}
-ycDF <- nycDF %>% filter(!is.na(X__1))
+nycDF <- nycDF %>% filter(!is.na(X__1))
 head(nycDF)
 tail(nycDF)
 ```
@@ -165,3 +165,109 @@ title("Total Number of Casualties")
 ```
 
 # Hospital Data
+
+Importing the data:
+
+```{r}
+hosDF <- read.csv("/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Project 2/Complications and Deaths - Hospital.csv")
+
+```
+
+There are a lot of NA values. First we need to change them to NA
+```{r}
+hosDF[ hosDF == "Not Available" ] <- NA
+```
+
+
+We can remove NA’s but this gives us an incomplete dataset. It might be better to remove the entire hospital if it is missing one value. We will deal with this later.
+
+Right now we need to find the length of time that the hospitals studied
+
+```{r}
+osDF <- hosDF %>% mutate(timeDiff = difftime(as.POSIXct(as.Date(hosDF$Measure.End.Date,
+                                               format = '%m/%d/%Y')), 
+         as.POSIXct(as.Date(hosDF$Measure.Start.Date, 
+                                               format = '%m/%d/%Y')), 
+         units = 'days'))
+```
+
+```{r}
+hosDF$Score <-  as.numeric(hosDF$Score)
+plt <- hosDF %>% 
+  group_by(Measure.Name) %>% 
+  summarise(facSum = sum(Score, na.rm = T))
+ 
+ggplot(plt, aes(Measure.Name, facSum))+
+  geom_bar(stat = 'identity') +
+  theme(axis.text.x=element_text(angle=90, hjust=1))+ coord_flip()+
+  ggtitle('Deaths by Cause')
+```
+
+Create dummy variables for Measure ID.
+
+```{r}
+hosDF %>% 
+  mutate(yesno = 1) %>% 
+  distinct() %>% 
+  spread(Measure.ID, yesno, fill = 0) %>% 
+  glimpse()
+```
+
+# Chronic Disease
+
+```{r}
+library(readr)
+U_S_Chronic_Disease_Indicators_CDI_ <- read_csv("/Users/kailukowiak/U.S._Chronic_Disease_Indicators__CDI_ (1).csv")
+```
+
+```{r}
+chronDF <- U_S_Chronic_Disease_Indicators_CDI_
+
+chronDF <- chronDF %>% select_if(~sum(!is.na(.)) > 0) # Removes all rows that only have NA values
+chronDF$DataValueFootnoteSymbol <- NULL
+chronDF$DatavalueFootnote <- NULL
+chronDF$DataValueUnit <- NULL # Removing not very useful data
+chronDF <- filter(chronDF, LocationDesc != c("Guam", "District of Columbia","Puerto Rico",
+                                             "United States","Virgin Islands"))
+
+library(fiftystater)
+library(mapproj)
+```
+
+
+
+
+
+```{r}
+alcohol <- filter(chronDF, Question == "Alcohol use among youth" & 
+                    YearStart == 2015 & StratificationCategory1 == "Overall")
+alcohol$LocationDesc <- tolower(alcohol$LocationDesc) # Needs to be lowercase to match the map.
+ggplot(alcohol, aes(map_id = LocationDesc)) +
+  geom_map(aes(fill = DataValue), map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(legend.position = "bottom", 
+        panel.background = element_blank())+
+  ggtitle("Alcohol use among youth")
+```
+
+```{r}
+alcoholFem <- filter(chronDF, Question == "Heavy drinking among women aged 18-44 years" & 
+                       YearStart == 2015 & StratificationCategory1 == "Overall")
+alcoholFem$LocationDesc <- tolower(alcoholFem$LocationDesc) # Needs to be lowercase to match the map.
+ggplot(alcoholFem, aes(map_id = LocationDesc)) +
+  geom_map(aes(fill = DataValue), map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(legend.position = "bottom", 
+        panel.background = element_blank()) +
+  ggtitle("Heavy drinking among women aged 18-44 years")
+```
+
+Nevada doesn’t make a lot of sense being so low, but maybe my sterotypes of Americans need updating. It’s interesting that there seems to be little correlation between youth alcohol consumption and heavy drinking in adulthood.
