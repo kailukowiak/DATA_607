@@ -1,0 +1,167 @@
+---
+title: "Data 607 Ass2"
+author: "Kai Lukowiak"
+date: '2017-10-14'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# NYC Crashes:
+
+Import the data:
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(ggplot2)
+library(ggthemes)
+```
+
+```{r}
+nycDF <-  read_excel("/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Project 2/cityacc-en-us.xlsx")
+head(nycDF)
+tail(nycDF)
+
+```
+
+```{r}
+ycDF <- nycDF %>% filter(!is.na(X__1))
+head(nycDF)
+tail(nycDF)
+```
+
+Now we need to add row names.
+
+```{r}
+
+colnames(nycDF) <- nycDF[1,]
+nycDF <- nycDF[-1,]
+head(nycDF) 
+
+```
+
+
+Everthing is reletively pretty now, but we have citywide, borough, and precicnt data. This isn’t very tidy.
+
+Seperate borough and precent data.
+
+```{r}
+borDF <- nycDF %>% 
+  filter( !grepl("\\d", GeoCode))
+preDF <- nycDF %>% 
+  filter( grepl("\\d", GeoCode))
+```
+
+Create new column.
+
+```{r}
+nycDF <- nycDF %>% mutate(Borough = GeoCode)
+```
+
+Remove numerics from Borough
+
+```{r}
+nycDF$Borough <- sub("\\d\\d\\d", NA , nycDF$Borough)
+nycDF <- nycDF %>% fill(Borough, .direction = "down")# Add factor variables. 
+precDF <- nycDF %>% 
+  filter( grepl("\\d", GeoCode))
+precDF %>%
+  head() 
+```
+
+```{r}
+precDF$Borough <-  precDF$Borough %>% recode(M = "Manhatten",
+         B = "Bronx",
+         K = "Brooklyn",
+         Q = "Queens",
+         S = "StattenIsland") # Adds names.
+precDF$Borough <- as.factor(precDF$Borough)
+cols <- colnames(precDF)
+precDF[, cols[-c(2,15)]] <-  as.numeric(unlist(precDF[, cols[-c(2,15)]])) # Convert to numeric
+```
+
+
+# Analysis of NYC Crashes
+
+```{r}
+plt <-  precDF %>% 
+  group_by(Borough) %>% 
+  summarise(numAccidents = sum(Number_of_Motor_Vehicle_Collisions))
+
+ggplot(plt, aes(x = Borough, y = numAccidents))+
+  geom_bar(stat = 'identity') + 
+  xlab("Borough") +
+  ylab("Number of Accidents") +
+  ggtitle("Number of Accidents by Borough") +
+  theme_fivethirtyeight()
+```
+
+Special thanks to [Rob Barry](http://rob-barry.com/2015/06/14/Mapping-in-R/) for nyc precincts.
+
+
+
+```{r}
+# Grab the shapefile and extract it
+# You may want to add some file paths here
+download.file(
+  # I saved a version on my server so this script should work
+  # even if the NYC planning department changes things around
+  "http://www.rob-barry.com/assets/data/mapping/nypp_15b.zip",
+  destfile = "nypp_15b.zip"
+)
+unzip(zipfile = "nypp_15b.zip")
+
+# Now, load package to read the shapefile
+library("rgdal")
+
+# Read it into an sp object:
+nypp <- readOGR("nypp_15b", "nypp")
+```
+
+
+```{r}
+library("RColorBrewer")
+library("classInt")
+
+# Plot it
+pal <- brewer.pal(5, "YlOrRd")
+fill.clr <-
+  findColours(
+    classIntervals(as.numeric(precDF$Number_of_Motor_Vehicle_Collisions), style = "pretty", n = 5),
+    pal
+  )
+plot(nypp, col = fill.clr)
+legend(
+  "topleft",
+  fill=attr(fill.clr, "palette"),
+  legend=names(attr(fill.clr, "table")),
+  bty = "n"
+)
+title("Accidents by Precinct")
+```
+
+
+```{r}
+# Plot it
+pal <- brewer.pal(5, "YlOrRd")
+fill.clr <-
+  findColours(
+    classIntervals(as.numeric(precDF$Injury_or_Fatal_Collisions), style = "pretty", n = 5),
+    pal
+  )
+plot(nypp, col = fill.clr)
+legend(
+  "topleft",
+  fill=attr(fill.clr, "palette"),
+  legend=names(attr(fill.clr, "table")),
+  bty = "n"
+)
+title("Total Number of Casualties")
+
+```
+
+# Hospital Data
