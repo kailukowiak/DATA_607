@@ -1,0 +1,30 @@
+{"books":[
+		{
+		"ID":"01",
+		"Title":"Elements of Statistical Learning",
+		"Authors":"Trevor Hastie, Robert Tibshirani, Jerome Friedman",
+		"Subject":"Machine Learning",
+		"Publisher":"Springer",
+		"Year":"2009",
+		"Language":"R"
+		},
+		{
+		"ID":"02",
+		"Title":"R for Data Science",
+		"Authors":"Hadley Wickham",
+		"Subject":"Data Science",
+		"Publisher":"Oreilly",
+		"Year":"2016",
+		"Language":"R"
+		},
+		{
+		"ID":"03",
+		"Title":"Building Machine Learning Systems With Python",
+		"Authors":"Willi Richert, Luis Pedro Coelo",
+		"Subject":"Machine Learning",
+		"Publisher":" Packt",
+		"Year":"2016",
+		"Language":"Python"
+		}
+	]
+}

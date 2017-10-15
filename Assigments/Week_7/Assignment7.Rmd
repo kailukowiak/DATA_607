@@ -1,0 +1,49 @@
+---
+title: "Assignment7"
+author: "Kai Lukowiak"
+date: '2017-10-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The main part of this exercise was writing the books.* files by hand. See [my]()
+
+
+```{r}
+library(XML)
+library(knitr)
+library(jsonlite)
+library(dplyr)
+library(rvest)
+
+```
+
+
+```{r}
+books <- read_html("/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Assigments/Week_7/books.html")
+books1 <- books %>% html_table() %>% as.data.frame() 
+books1 %>% kable()
+```
+
+```{r}
+
+doc <- "/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Assigments/Week_7/books.xml"
+book = xmlParse(doc)
+books2 <- xmlToDataFrame(book)
+kable(books2)
+
+```
+
+
+
+
+```{r}
+url <- "/Users/kailukowiak/OneDrive - CUNY School of Professional Studies/DATA 607 Repository/Assigments/Week_7/books.json"
+books3 = fromJSON(url)
+kable(books3)
+```
+
+
