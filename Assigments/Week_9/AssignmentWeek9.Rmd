@@ -1,0 +1,61 @@
+---
+title: "Webscraping to Find Key DS Skills"
+author: "Kai Lukowiak"
+date: '2017-10-28'
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data 607 Week 9 Assignment
+## webscraping from an API
+### Your task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it to an R dataframe.
+
+* Data can be collected [here](http://developer.nytimes.com/docs)
+
+
+```{r warning=FALSE, error=FALSE, message=FALSE}
+library(knitr)
+library(dplyr)
+library(stringr)
+library(jsonlite)
+library(httr)
+library(pander)
+```
+
+The API key and url to extract the most popular opinion peices over the last thirty days are here. 
+
+```{r}
+apiKey <-  "&api-key=b95585fd6b264ab08e28fb0e96998aae"
+urlBase <-"https://api.nytimes.com/svc/mostpopular/v2/mostshared/Opinion/30.json?"
+nytURL <- paste(urlBase, apiKey, sep = "")
+```
+
+We use the GET command to extract a json like object from the API
+
+```{r}
+nytData <- GET(nytURL)
+content(nytData, 'text')
+
+```
+
+And convert it into a data frame with relevant columns.
+
+```{r}
+json_raw <- content(nytData, type = "text", encoding = "UTF-8")
+json1 <- fromJSON(json_raw)
+df <- as.data.frame(json1$results)
+df1 <- df %>% select(byline, title, abstract, published_date)
+df1$byline <-  str_replace(df1$byline, 'By ', "")
+df1 %>% kable("html") 
+  
+  
+  
+```
+
+
