@@ -4,3 +4,5 @@
 .Ruserdata
 .DS*
 rsconnect
+userNamePassWord.py
+__pycache__
